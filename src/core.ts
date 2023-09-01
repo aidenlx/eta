@@ -28,18 +28,26 @@ export class Eta {
   compileToString = compileToString;
   compileBody = compileBody;
   parse = parse;
-  render = render;
-  renderAsync = renderAsync;
-  renderString = renderString;
-  renderStringAsync = renderStringAsync;
+  render: (
+    template: string | TemplateFunction,
+    data: object,
+    meta?: { filepath: string }
+  ) => string = render;
+  renderAsync: (
+    template: string | TemplateFunction,
+    data: object,
+    meta?: { filepath: string }
+  ) => Promise<string> = renderAsync;
+  renderString: (template: string, data: object) => string = renderString;
+  renderStringAsync: (template: string, data: object) => Promise<string> = renderStringAsync;
 
   filepathCache: Record<string, string> = {};
   templatesSync = new Cacher<TemplateFunction>({});
   templatesAsync = new Cacher<TemplateFunction>({});
 
   // resolvePath takes a relative path from the "views" directory
-  resolvePath: null | ((this: Eta, template: string, options?: Partial<Options>) => string) = null;
-  readFile: null | ((this: Eta, path: string) => string) = null;
+  resolvePath: null | ((template: string, options?: Partial<Options>) => string) = null;
+  readFile: null | ((path: string) => string) = null;
 
   // METHODS
 

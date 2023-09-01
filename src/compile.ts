@@ -4,7 +4,10 @@ import { EtaError } from "./err.ts";
 import type { Eta } from "./core.ts";
 import type { EtaConfig, Options } from "./config.ts";
 
-export type TemplateFunction = (this: Eta, data?: object, options?: Partial<Options>) => string;
+export type TemplateFunction = {
+  (this: Eta, data?: object, options?: Partial<Options>): string;
+  mtime?: number;
+}
 /* END TYPES */
 
 /* istanbul ignore next */
@@ -17,7 +20,7 @@ const AsyncFunction = async function () {}.constructor; // eslint-disable-line @
  * @param config - A custom configuration object (optional)
  */
 
-export function compile(this: Eta, str: string, options?: Partial<Options>): TemplateFunction {
+export function compile(this: Eta, str: string, options?: Partial<Options> & { mtime?: number }): TemplateFunction {
   const config: EtaConfig = this.config;
 
   /* ASYNC HANDLING */
@@ -26,11 +29,13 @@ export function compile(this: Eta, str: string, options?: Partial<Options>): Tem
   /* END ASYNC HANDLING */
 
   try {
-    return new ctor(
+    const func =  new ctor(
       config.varName,
       "options",
       this.compileToString.call(this, str, options)
     ) as TemplateFunction; // eslint-disable-line no-new-func
+    func.mtime = options?.mtime
+    return func;
   } catch (e) {
     if (e instanceof SyntaxError) {
       throw new EtaError(
