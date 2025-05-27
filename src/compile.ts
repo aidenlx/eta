@@ -4,15 +4,14 @@ import { EtaParseError } from "./err.ts";
 import type { Eta } from "./core.ts";
 import type { EtaConfig, Options } from "./config.ts";
 
-export type TemplateFunction = (
-  this: Eta,
-  data?: object,
-  options?: Partial<Options>,
-) => string;
+export type TemplateFunction = {
+  (this: Eta, data?: object, options?: Partial<Options>): string;
+  mtime?: number;
+};
 /* END TYPES */
 
 /* istanbul ignore next */
-const AsyncFunction = async function () {}.constructor; // eslint-disable-line @typescript-eslint/no-empty-function
+const AsyncFunction = (async () => {}).constructor; // eslint-disable-line @typescript-eslint/no-empty-function
 
 /**
  * Takes a template string and returns a template function that can be called with (data, config)
@@ -36,11 +35,13 @@ export function compile(
   /* END ASYNC HANDLING */
 
   try {
-    return new ctor(
+    const func = new ctor(
       config.varName,
       "options",
       this.compileToString.call(this, str, options),
     ) as TemplateFunction; // eslint-disable-line no-new-func
+    func.mtime = options?.mtime;
+    return func;
   } catch (e) {
     if (e instanceof SyntaxError) {
       throw new EtaParseError(

@@ -1,5 +1,5 @@
 {
-  "name": "eta",
+  "name": "@zotlit/eta",
   "version": "3.5.0",
   "description": "Lightweight, fast, and powerful embedded JS template engine",
   "keywords": [

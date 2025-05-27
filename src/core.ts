@@ -10,7 +10,7 @@ import {
   renderStringAsync,
 } from "./render.ts";
 import { EtaError, RuntimeErr } from "./err.ts";
-import { TemplateFunction } from "./compile.ts";
+import type { TemplateFunction } from "./compile.ts";
 
 /* TYPES */
 import type { EtaConfig, Options } from "./config.ts";
@@ -33,10 +33,19 @@ export class Eta {
   compileToString = compileToString;
   compileBody = compileBody;
   parse = parse;
-  render = render;
-  renderAsync = renderAsync;
-  renderString = renderString;
-  renderStringAsync = renderStringAsync;
+  render: (
+    template: string | TemplateFunction,
+    data: object,
+    meta?: { filepath: string },
+  ) => string = render;
+  renderAsync: (
+    template: string | TemplateFunction,
+    data: object,
+    meta?: { filepath: string },
+  ) => Promise<string> = renderAsync;
+  renderString: (template: string, data: object) => string = renderString;
+  renderStringAsync: (template: string, data: object) => Promise<string> =
+    renderStringAsync;
 
   filepathCache: Record<string, string> = {};
   templatesSync: Cacher<TemplateFunction> = new Cacher<TemplateFunction>({});
@@ -46,7 +55,7 @@ export class Eta {
   resolvePath:
     | null
     | ((this: Eta, template: string, options?: Partial<Options>) => string) =
-      null;
+    null;
   readFile: null | ((this: Eta, path: string) => string) = null;
 
   // METHODS
@@ -65,9 +74,8 @@ export class Eta {
     options?: { async: boolean },
   ): void {
     if (typeof template === "string") {
-      const templates = options && options.async
-        ? this.templatesAsync
-        : this.templatesSync;
+      const templates =
+        options && options.async ? this.templatesAsync : this.templatesSync;
 
       templates.define(name, this.compile(template, options));
     } else {

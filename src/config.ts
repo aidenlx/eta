@@ -2,7 +2,7 @@ import { XMLEscape } from "./utils.ts";
 
 /* TYPES */
 
-type trimConfig = "nl" | "slurp" | false;
+export type trimConfig = "nl" | "slurp" | false;
 
 export interface Options {
   /** Compile to async function */
@@ -10,6 +10,8 @@ export interface Options {
 
   /** Absolute path to template file */
   filepath?: string;
+
+  mtime?: number;
 }
 
 export interface EtaConfig {
